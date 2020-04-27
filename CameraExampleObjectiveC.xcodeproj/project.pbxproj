@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F70B5902455C1A7006C1B99 /* include in Resources */ = {isa = PBXBuildFile; fileRef = 0F70B58F2455C1A7006C1B99 /* include */; };
+		0F70B5932455C1C2006C1B99 /* libndi_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F70B5922455C1C2006C1B99 /* libndi_ios.a */; };
 		182F382224517A6300C1FDDD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F382124517A6300C1FDDD /* AppDelegate.m */; };
 		182F382524517A6300C1FDDD /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F382424517A6300C1FDDD /* SceneDelegate.m */; };
 		182F382824517A6300C1FDDD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F382724517A6300C1FDDD /* ViewController.m */; };
@@ -38,6 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0F70B58F2455C1A7006C1B99 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = NdiSDK/include; sourceTree = "<group>"; };
+		0F70B5922455C1C2006C1B99 /* libndi_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libndi_ios.a; path = NdiSDK/lib/iOS/libndi_ios.a; sourceTree = "<group>"; };
 		182F381D24517A6300C1FDDD /* CameraExampleObjectiveC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraExampleObjectiveC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		182F382024517A6300C1FDDD /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		182F382124517A6300C1FDDD /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -67,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F70B5932455C1C2006C1B99 /* libndi_ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,13 +92,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0F70B5912455C1C2006C1B99 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0F70B5922455C1C2006C1B99 /* libndi_ios.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		182F381424517A6300C1FDDD = {
 			isa = PBXGroup;
 			children = (
+				0F70B58F2455C1A7006C1B99 /* include */,
 				182F381F24517A6300C1FDDD /* CameraExampleObjectiveC */,
 				182F383B24517A6500C1FDDD /* CameraExampleObjectiveCTests */,
 				182F384624517A6500C1FDDD /* CameraExampleObjectiveCUITests */,
 				182F381E24517A6300C1FDDD /* Products */,
+				0F70B5912455C1C2006C1B99 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -253,6 +268,7 @@
 				182F383024517A6500C1FDDD /* LaunchScreen.storyboard in Resources */,
 				182F382D24517A6500C1FDDD /* Assets.xcassets in Resources */,
 				182F382B24517A6300C1FDDD /* Main.storyboard in Resources */,
+				0F70B5902455C1A7006C1B99 /* include in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,10 +469,22 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VUD7H9DYW2;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/NdiSDK/include",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = CameraExampleObjectiveC/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NdiSDK/lib/iOS",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobiona.CameraExampleObjectiveC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -470,10 +498,22 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VUD7H9DYW2;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/NdiSDK/include",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = CameraExampleObjectiveC/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NdiSDK/lib/iOS",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobiona.CameraExampleObjectiveC;
 				PRODUCT_NAME = "$(TARGET_NAME)";

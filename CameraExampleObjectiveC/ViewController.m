@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#include "Processing.NDI.Lib.h"
 
 @interface ViewController ()
 
@@ -17,6 +18,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
 }
 
 - (UIInterfaceOrientationMask) supportedInterfaceOrientations {

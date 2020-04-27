@@ -10,6 +10,7 @@
 @import AssetsLibrary;
 #import "CameraViewController.h"
 #import "AVCamPreviewView.h"
+#include "Processing.NDI.Lib.h"
 
 static void*  SessionRunningContext = &SessionRunningContext;
 static void*  SystemPressureContext = &SystemPressureContext;
@@ -76,20 +77,6 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
         self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
         [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         
-        
-        //ADD MOVIE FILE OUTPUT
-        NSLog(@"Adding movie file output");
-        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-        
-        Float64 TotalSeconds = 60;            //Total seconds
-        int32_t preferredTimeScale = 30;    //Frames per second
-        CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);
-        self.movieFileOutput.maxRecordedDuration = maxDuration;
-        
-        self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024;
-        
-        if ([self.session canAddOutput:self.movieFileOutput])
-            [self.session addOutput:self.movieFileOutput];
 
         //SET THE CONNECTION PROPERTIES (output properties)
         [self cameraSetOutputProperties];
@@ -148,18 +135,7 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
             [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
         });
 
-        //Create temporary URL to record to
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
-        NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if ([fileManager fileExistsAtPath:outputPath]) {
-            NSError *error;
-            if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
-                //Error - handle if requried
-            }
-        }
-        //Start recording
-        [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+        
     } else {
         //----- STOP RECORDING -----
         NSLog(@"STOP RECORDING");
@@ -169,7 +145,6 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
             UIImage *image  = [UIImage imageNamed:@"record" inBundle:bundle compatibleWithTraitCollection:nil];
             [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
         });
-        [self.movieFileOutput stopRecording];
     }
 }
 
@@ -177,23 +152,6 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-//********** DID FINISH RECORDING TO OUTPUT FILE AT URL **********
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
-    NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
-    
-    BOOL recordedSuccessfully = YES;
-    if ([error code] != noErr) {
-        // A problem occurred: Find out if the recording was successful.
-        id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
-        if (value) {
-            recordedSuccessfully = [value boolValue];
-        }
-    }
-    if (recordedSuccessfully) {
-        //----- RECORDED SUCESSFULLY -----
-        NSLog(@"didFinishRecordingToOutputFileAtURL - success");
-    }
-}
 
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

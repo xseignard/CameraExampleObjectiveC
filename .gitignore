@@ -67,3 +67,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+NdiSDK/lib/.DS_Store
+.DS_Store
+NdiSDK/lib/iOS/libndi_ios.a
