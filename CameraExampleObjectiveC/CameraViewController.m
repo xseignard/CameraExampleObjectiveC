@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
     AVCamSetupResultSessionConfigurationFailed
 };
 
-@interface CameraViewController () <AVCaptureFileOutputRecordingDelegate>
+@interface CameraViewController () <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
 @property (nonatomic, weak) IBOutlet UIView* previewView;
 @property (weak, nonatomic) IBOutlet UIButton *recordingButton;
 
@@ -31,11 +31,19 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
 @property (nonatomic) AVCaptureDeviceInput *videoInputDevice;
 @property (nonatomic) Boolean isRecording;
 
+@property (nonatomic, retain) AVCaptureVideoDataOutput * avCaptureVideoDataOutput;
+@property (nonatomic, retain) AVCaptureAudioDataOutput * avCaptureAudioDataOutput;
+@property (nonatomic) dispatch_queue_t dataOutputQueue;
+@property (nonatomic) NDIlib_send_instance_t my_ndi_send;
+
 @end
 
 @implementation CameraViewController
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.dataOutputQueue = dispatch_queue_create("video buffer output", DISPATCH_QUEUE_SERIAL);
+    self.my_ndi_send = nil;
+    
     // Set up the preview view.
     self.session = [[AVCaptureSession alloc] init];
     
@@ -78,8 +86,7 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
         [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         
 
-        //SET THE CONNECTION PROPERTIES (output properties)
-        [self cameraSetOutputProperties];
+        
         
         //----- SET THE IMAGE QUALITY / RESOLUTION -----
         //Options:
@@ -91,8 +98,9 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
         //    AVCaptureSessionPresetPhoto - Full photo resolution (not supported for video output)
         NSLog(@"Setting image quality");
         [self.session setSessionPreset:AVCaptureSessionPresetMedium];
-        if ([self.session canSetSessionPreset:AVCaptureSessionPreset640x480])
-            [self.session setSessionPreset:AVCaptureSessionPreset640x480];
+        if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
+                [self.session setSessionPreset:AVCaptureSessionPreset1280x720];
+        }
         
         //----- DISPLAY THE PREVIEW LAYER -----
         //Display it full screen under out view controller existing controls
@@ -111,8 +119,9 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
 //********** CAMERA SET OUTPUT PROPERTIES **********
 - (void) cameraSetOutputProperties
 {
+    if (self.avCaptureVideoDataOutput == nil) { return; }
     //SET THE CONNECTION PROPERTIES (output properties)
-    AVCaptureConnection *captureConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+    AVCaptureConnection *captureConnection = [self.avCaptureVideoDataOutput connectionWithMediaType:AVMediaTypeVideo];
     
     //Set landscape (if required)
     if ([captureConnection isVideoOrientationSupported])
@@ -134,6 +143,35 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
             UIImage *image  = [UIImage imageNamed:@"stop" inBundle:bundle compatibleWithTraitCollection:nil];
             [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
         });
+        
+        /* Bharat: Add packet receiver*/
+        self.avCaptureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        [self.avCaptureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+        NSMutableDictionary * videoSettings = [[NSMutableDictionary alloc] init];
+        [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        self.avCaptureVideoDataOutput.videoSettings = videoSettings;
+        [self.avCaptureVideoDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
+        
+        if ([self.session canAddOutput:self.avCaptureVideoDataOutput]) {
+            [self.session addOutput:self.avCaptureVideoDataOutput];
+        }
+        
+        //SET THE CONNECTION PROPERTIES (output properties)
+        [self cameraSetOutputProperties];
+        
+        self.avCaptureAudioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+        [self.avCaptureAudioDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
+        
+        if ([self.session canAddOutput:self.avCaptureAudioDataOutput]) {
+            [self.session addOutput:self.avCaptureAudioDataOutput];
+        }
+        
+        self.my_ndi_send = NDIlib_send_create(nil);
+        if (!self.my_ndi_send) {
+            NSLog(@"ERROR: Failed to create sender");
+        } else {
+            NSLog(@"Successfully created sender");
+        }
 
         
     } else {
@@ -145,6 +183,25 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
             UIImage *image  = [UIImage imageNamed:@"record" inBundle:bundle compatibleWithTraitCollection:nil];
             [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
         });
+        
+        if (self.session != nil) {
+            if (self.avCaptureVideoDataOutput != nil) {
+                [self.session removeOutput:self.avCaptureVideoDataOutput];
+                self.avCaptureVideoDataOutput = nil;
+            }
+            if (self.avCaptureAudioDataOutput != nil) {
+                [self.session removeOutput:self.avCaptureAudioDataOutput];
+                self.avCaptureAudioDataOutput = nil;
+            }
+        } else {
+            self.avCaptureVideoDataOutput = nil;
+            self.avCaptureAudioDataOutput = nil;
+        }
+        
+        if (self.my_ndi_send) {
+            NDIlib_send_destroy(self.my_ndi_send);
+            self.my_ndi_send = nil;
+        }
     }
 }
 
@@ -184,6 +241,39 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
     UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
     if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
         self.previewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
+    }
+}
+
+#pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
+- (void)captureOutput:(AVCaptureOutput *)output
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection {
+    if (self.isRecording) {
+        NSLog(@"didOutputSampleBuffer");
+        if (output == self.avCaptureVideoDataOutput) {
+            NSLog(@"Video packet");
+            NDIlib_video_frame_v2_t video_frame_data;
+            video_frame_data.xres = xres;
+            video_frame_data.yres = yres;
+            video_frame_data.FourCC = NDIlib_FourCC_type_BGRA;
+            video_frame_data.p_data = p_bgra;
+            NDIlib_send_send_video(self.my_ndi_send, &video_frame_data);
+        } else if (output == self.avCaptureAudioDataOutput) {
+            NSLog(@"Audio packet");
+        }
+    }
+}
+
+- (void)captureOutput:(AVCaptureOutput *)output
+didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection {
+    if (self.isRecording) {
+        return;
+    }
+    if (output == self.avCaptureVideoDataOutput) {
+        NSLog(@"Error: Dropped Video packet");
+    } else if (output == self.avCaptureAudioDataOutput) {
+        NSLog(@"Error: Dropped Audio packet");
     }
 }
 

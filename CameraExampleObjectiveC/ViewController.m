@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#include "Processing.NDI.Lib.h"
 
 @interface ViewController ()
 
