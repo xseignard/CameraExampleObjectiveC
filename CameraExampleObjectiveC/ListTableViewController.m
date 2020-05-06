@@ -7,6 +7,7 @@
 //
 
 #import "ListTableViewController.h"
+#import "FeedDetailsViewController.h"
 #include "Processing.NDI.Lib.h"
 
 @interface ListTableViewController ()
@@ -39,10 +40,7 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    if (self.ndi_find) {
-        NDIlib_find_destroy(self.ndi_find);
-        self.ndi_find = nil;
-    }
+    
     [super viewWillDisappear:animated];
 }
 
@@ -64,9 +62,11 @@
     });
 }
 -(void) findSourcesApiCall {
-    if (!self.ndi_find) {
-        self.ndi_find = NDIlib_find_create_v2(nil);
+    if (self.ndi_find) {
+        NDIlib_find_destroy(self.ndi_find);
+        self.ndi_find = nil;
     }
+    self.ndi_find = NDIlib_find_create_v2(nil);
     if (!self.ndi_find) {
         NSLog(@"ERROR: Failed to create finder");
     } else {
@@ -98,7 +98,10 @@
     }
     
     self.activeSources = sources;
-    
+    if (self.ndi_find) {
+        NDIlib_find_destroy(self.ndi_find);
+        self.ndi_find = nil;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.activityIndicator stopAnimating];
         [self.listTableView reloadData];
@@ -139,16 +142,18 @@
     cell.detailTextLabel.text = @"";
     
     if ([self.activeSources count] > [indexPath row]) {
-        NSDictionary * aDict = [self.activeSources objectAtIndex:indexPath.row];
-        cell.textLabel.text = [aDict objectForKey:@"p_ndi_name"];
-        if ([aDict objectForKey:@"p_ip_address"] != nil) {
-            cell.detailTextLabel.text = [aDict objectForKey:@"p_ip_address"];
-        } else {
-            if ([aDict objectForKey:@"p_url_address"] != nil) {
-                cell.detailTextLabel.text = [aDict objectForKey:@"p_url_address"];
-            }
-        }
-    }
+       NSDictionary * aDict = [self.activeSources objectAtIndex:indexPath.row];
+       cell.textLabel.text = [aDict objectForKey:@"p_ndi_name"];
+       if ([aDict objectForKey:@"p_ip_address"] != nil) {
+           cell.detailTextLabel.text = [aDict objectForKey:@"p_ip_address"];
+       } else {
+           if ([aDict objectForKey:@"p_url_address"] != nil) {
+               cell.detailTextLabel.text = [aDict objectForKey:@"p_url_address"];
+           }
+       }
+   }
+    
+   
     
     return cell;
 }
@@ -157,7 +162,22 @@
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     NSString * storyboardName = @"Main";
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:storyboardName bundle: nil];
-    UIViewController * vc = [storyboard instantiateViewControllerWithIdentifier:@"FeedDetailsViewController"];
+    FeedDetailsViewController * vc = [storyboard instantiateViewControllerWithIdentifier:@"FeedDetailsViewController"];
+   
+    if ([self.activeSources count] > [indexPath row]) {
+           NSDictionary * aDict = [self.activeSources objectAtIndex:indexPath.row];
+           NDIlib_source_t aSender;
+           aSender.p_ndi_name = [[aDict objectForKey:@"p_ndi_name"] cStringUsingEncoding:NSUTF8StringEncoding];
+           if ([aDict objectForKey:@"p_ip_address"] != nil) {
+               aSender.p_ip_address = [[aDict objectForKey:@"p_ip_address"] cStringUsingEncoding:NSUTF8StringEncoding];
+           } else {
+               if ([aDict objectForKey:@"p_url_address"] != nil) {
+                   aSender.p_url_address = [[aDict objectForKey:@"p_url_address"] cStringUsingEncoding:NSUTF8StringEncoding];
+               }
+           }
+        vc.ndi_source = aSender;
+       }
+    
     [self presentViewController:vc animated:YES completion:nil];
 }
 

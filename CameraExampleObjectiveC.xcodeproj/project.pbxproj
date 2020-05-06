@@ -22,6 +22,9 @@
 		182F385A2451874F00C1FDDD /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F38592451874F00C1FDDD /* AVCamPreviewView.m */; };
 		18E76284246248920097BC48 /* ListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E76283246248920097BC48 /* ListTableViewController.m */; };
 		18E76287246255950097BC48 /* FeedDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E76286246255950097BC48 /* FeedDetailsViewController.m */; };
+		18E762892462AB3F0097BC48 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18E762882462AB3F0097BC48 /* GLKit.framework */; };
+		18E7628B2462AB650097BC48 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18E7628A2462AB650097BC48 /* OpenGLES.framework */; };
+		18E7628D2462ACB90097BC48 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18E7628C2462ACB90097BC48 /* VideoToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +73,9 @@
 		18E76283246248920097BC48 /* ListTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ListTableViewController.m; sourceTree = "<group>"; };
 		18E76285246255950097BC48 /* FeedDetailsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FeedDetailsViewController.h; sourceTree = "<group>"; };
 		18E76286246255950097BC48 /* FeedDetailsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FeedDetailsViewController.m; sourceTree = "<group>"; };
+		18E762882462AB3F0097BC48 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		18E7628A2462AB650097BC48 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		18E7628C2462ACB90097BC48 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +83,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18E7628D2462ACB90097BC48 /* VideoToolbox.framework in Frameworks */,
+				18E7628B2462AB650097BC48 /* OpenGLES.framework in Frameworks */,
+				18E762892462AB3F0097BC48 /* GLKit.framework in Frameworks */,
 				0F70B5932455C1C2006C1B99 /* libndi_ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,6 +110,9 @@
 		0F70B5912455C1C2006C1B99 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18E7628C2462ACB90097BC48 /* VideoToolbox.framework */,
+				18E7628A2462AB650097BC48 /* OpenGLES.framework */,
+				18E762882462AB3F0097BC48 /* GLKit.framework */,
 				0F70B5922455C1C2006C1B99 /* libndi_ios.a */,
 			);
 			name = Frameworks;

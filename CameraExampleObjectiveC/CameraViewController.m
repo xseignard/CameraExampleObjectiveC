@@ -148,7 +148,15 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
 }
 
 - (void) startCapturing {
-    self.my_ndi_send = NDIlib_send_create(nil);
+    //NSLog(@"%@",[UIDevice currentDevice].name);
+    //NSLog(@"%s",[[UIDevice currentDevice].name cStringUsingEncoding:NSUTF8StringEncoding]);
+    NDIlib_send_create_t options;
+    options.p_ndi_name=[[UIDevice currentDevice].name cStringUsingEncoding:NSUTF8StringEncoding];
+    options.p_groups = NULL;
+    options.clock_video = true;
+    options.clock_audio = false;
+    
+    self.my_ndi_send = NDIlib_send_create(&options);
     if (!self.my_ndi_send) {
         NSLog(@"ERROR: Failed to create sender");
     } else {

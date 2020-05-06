@@ -18,8 +18,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="I7k-oK-bHK">
-                                <rect key="frame" x="355" y="172" width="186" height="70"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="I7k-oK-bHK">
+                                <rect key="frame" x="355" y="147" width="186" height="120"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fje-Wk-mGS">
                                         <rect key="frame" x="0.0" y="0.0" width="186" height="30"/>
@@ -29,8 +29,8 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BSG-Bw-qzJ">
-                                        <rect key="frame" x="48" y="40" width="90" height="30"/>
-                                        <state key="normal" title="Find Sources"/>
+                                        <rect key="frame" x="9.5" y="90" width="167" height="30"/>
+                                        <state key="normal" title="Find Sources In Network"/>
                                         <connections>
                                             <segue destination="ITs-Us-KZt" kind="show" id="aTR-c0-R8N"/>
                                         </connections>
@@ -197,9 +197,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OZL-za-XyU">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OZL-za-XyU" customClass="GLKView">
                                 <rect key="frame" x="0.0" y="0.0" width="896" height="393"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemOrangeColor" red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <button opaque="NO" contentMode="center" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IDz-b0-zGm">
                                 <rect key="frame" x="30" y="25" width="17" height="25"/>

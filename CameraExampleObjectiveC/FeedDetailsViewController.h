@@ -6,12 +6,16 @@
 //  Copyright © 2020 Mobiona. All rights reserved.
 //
 
-#import "ViewController.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
+#import <CoreImage/CoreImage.h>
+#include "Processing.NDI.Lib.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FeedDetailsViewController : ViewController
-
+@interface FeedDetailsViewController : UIViewController
+@property (nonatomic) NDIlib_source_t ndi_source;
 @end
 
 NS_ASSUME_NONNULL_END
