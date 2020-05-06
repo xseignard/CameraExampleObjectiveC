@@ -20,6 +20,8 @@
 		182F384824517A6500C1FDDD /* CameraExampleObjectiveCUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F384724517A6500C1FDDD /* CameraExampleObjectiveCUITests.m */; };
 		182F38572451848700C1FDDD /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F38562451848700C1FDDD /* CameraViewController.m */; };
 		182F385A2451874F00C1FDDD /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 182F38592451874F00C1FDDD /* AVCamPreviewView.m */; };
+		18E76284246248920097BC48 /* ListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E76283246248920097BC48 /* ListTableViewController.m */; };
+		18E76287246255950097BC48 /* FeedDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E76286246255950097BC48 /* FeedDetailsViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +66,10 @@
 		182F38562451848700C1FDDD /* CameraViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
 		182F38582451874F00C1FDDD /* AVCamPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCamPreviewView.h; sourceTree = "<group>"; };
 		182F38592451874F00C1FDDD /* AVCamPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCamPreviewView.m; sourceTree = "<group>"; };
+		18E76282246248920097BC48 /* ListTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ListTableViewController.h; sourceTree = "<group>"; };
+		18E76283246248920097BC48 /* ListTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ListTableViewController.m; sourceTree = "<group>"; };
+		18E76285246255950097BC48 /* FeedDetailsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FeedDetailsViewController.h; sourceTree = "<group>"; };
+		18E76286246255950097BC48 /* FeedDetailsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FeedDetailsViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +146,10 @@
 				182F382E24517A6500C1FDDD /* LaunchScreen.storyboard */,
 				182F383124517A6500C1FDDD /* Info.plist */,
 				182F383224517A6500C1FDDD /* main.m */,
+				18E76282246248920097BC48 /* ListTableViewController.h */,
+				18E76283246248920097BC48 /* ListTableViewController.m */,
+				18E76285246255950097BC48 /* FeedDetailsViewController.h */,
+				18E76286246255950097BC48 /* FeedDetailsViewController.m */,
 			);
 			path = CameraExampleObjectiveC;
 			sourceTree = "<group>";
@@ -296,9 +306,11 @@
 				182F38572451848700C1FDDD /* CameraViewController.m in Sources */,
 				182F382824517A6300C1FDDD /* ViewController.m in Sources */,
 				182F385A2451874F00C1FDDD /* AVCamPreviewView.m in Sources */,
+				18E76284246248920097BC48 /* ListTableViewController.m in Sources */,
 				182F382224517A6300C1FDDD /* AppDelegate.m in Sources */,
 				182F383324517A6500C1FDDD /* main.m in Sources */,
 				182F382524517A6300C1FDDD /* SceneDelegate.m in Sources */,
+				18E76287246255950097BC48 /* FeedDetailsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,6 +12,10 @@
 #import "AVCamPreviewView.h"
 #include "Processing.NDI.Lib.h"
 
+#define VIDEO_CAPTURE_WIDTH 1280
+#define VIDEO_CAPTURE_HEIGHT 720
+#define VIDEO_CAPTURE_PIXEL_SIZE 4 // 4 bytes for kCVPixelFormatType_32BGRA
+
 static void*  SessionRunningContext = &SessionRunningContext;
 static void*  SystemPressureContext = &SystemPressureContext;
 
@@ -129,83 +133,96 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
         AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;
         [captureConnection setVideoOrientation:orientation];
     }
+    
+    //SET THE CONNECTION PROPERTIES (output properties)
+    [self cameraSetOutputProperties];
+    
+    self.avCaptureAudioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+    [self.avCaptureAudioDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
+    
+    if ([self.session canAddOutput:self.avCaptureAudioDataOutput]) {
+        [self.session addOutput:self.avCaptureAudioDataOutput];
+    }
+    
+    
+}
+
+- (void) startCapturing {
+    self.my_ndi_send = NDIlib_send_create(nil);
+    if (!self.my_ndi_send) {
+        NSLog(@"ERROR: Failed to create sender");
+    } else {
+        NSLog(@"Successfully created sender");
+    }
+    
+    NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"Assets" ofType:@"bundle"]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+       UIImage *image  = [UIImage imageNamed:@"stop" inBundle:bundle compatibleWithTraitCollection:nil];
+       [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
+   });
+   
+   /* Bharat: Add packet receiver*/
+   self.avCaptureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+   [self.avCaptureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+   NSMutableDictionary * videoSettings = [[NSMutableDictionary alloc] init];
+   [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+   [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_WIDTH] forKey:(id)kCVPixelBufferWidthKey];
+   [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_HEIGHT] forKey:(id)kCVPixelBufferHeightKey];
+   self.avCaptureVideoDataOutput.videoSettings = videoSettings;
+   [self.avCaptureVideoDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
+   
+   if ([self.session canAddOutput:self.avCaptureVideoDataOutput]) {
+       [self.session addOutput:self.avCaptureVideoDataOutput];
+   }
+}
+
+-(void) stopCapturing {
+    NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"Assets" ofType:@"bundle"]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIImage *image  = [UIImage imageNamed:@"record" inBundle:bundle compatibleWithTraitCollection:nil];
+        [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
+    });
+    
+    if (self.session != nil) {
+        if (self.avCaptureVideoDataOutput != nil) {
+            [self.session removeOutput:self.avCaptureVideoDataOutput];
+            self.avCaptureVideoDataOutput = nil;
+        }
+        if (self.avCaptureAudioDataOutput != nil) {
+            [self.session removeOutput:self.avCaptureAudioDataOutput];
+            self.avCaptureAudioDataOutput = nil;
+        }
+    } else {
+        self.avCaptureVideoDataOutput = nil;
+        self.avCaptureAudioDataOutput = nil;
+    }
+    
+    if (self.my_ndi_send) {
+        NDIlib_send_destroy(self.my_ndi_send);
+        self.my_ndi_send = nil;
+    }
 }
 
 //********** START STOP RECORDING BUTTON **********
 - (IBAction)StartStopButtonPressed:(id)sender {
-    NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"Assets" ofType:@"bundle"]];
+    
     if (!self.isRecording) {
         //----- START RECORDING -----
         NSLog(@"START RECORDING");
         self.isRecording = YES;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            UIImage *image  = [UIImage imageNamed:@"stop" inBundle:bundle compatibleWithTraitCollection:nil];
-            [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
-        });
-        
-        /* Bharat: Add packet receiver*/
-        self.avCaptureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        [self.avCaptureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-        NSMutableDictionary * videoSettings = [[NSMutableDictionary alloc] init];
-        [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-        self.avCaptureVideoDataOutput.videoSettings = videoSettings;
-        [self.avCaptureVideoDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
-        
-        if ([self.session canAddOutput:self.avCaptureVideoDataOutput]) {
-            [self.session addOutput:self.avCaptureVideoDataOutput];
-        }
-        
-        //SET THE CONNECTION PROPERTIES (output properties)
-        [self cameraSetOutputProperties];
-        
-        self.avCaptureAudioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
-        [self.avCaptureAudioDataOutput setSampleBufferDelegate:self queue:self.dataOutputQueue];
-        
-        if ([self.session canAddOutput:self.avCaptureAudioDataOutput]) {
-            [self.session addOutput:self.avCaptureAudioDataOutput];
-        }
-        
-        self.my_ndi_send = NDIlib_send_create(nil);
-        if (!self.my_ndi_send) {
-            NSLog(@"ERROR: Failed to create sender");
-        } else {
-            NSLog(@"Successfully created sender");
-        }
-
-        
+        [self startCapturing];
     } else {
         //----- STOP RECORDING -----
         NSLog(@"STOP RECORDING");
         self.isRecording = NO;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            UIImage *image  = [UIImage imageNamed:@"record" inBundle:bundle compatibleWithTraitCollection:nil];
-            [self.recordingButton setBackgroundImage:image forState:UIControlStateNormal];
-        });
-        
-        if (self.session != nil) {
-            if (self.avCaptureVideoDataOutput != nil) {
-                [self.session removeOutput:self.avCaptureVideoDataOutput];
-                self.avCaptureVideoDataOutput = nil;
-            }
-            if (self.avCaptureAudioDataOutput != nil) {
-                [self.session removeOutput:self.avCaptureAudioDataOutput];
-                self.avCaptureAudioDataOutput = nil;
-            }
-        } else {
-            self.avCaptureVideoDataOutput = nil;
-            self.avCaptureAudioDataOutput = nil;
-        }
-        
-        if (self.my_ndi_send) {
-            NDIlib_send_destroy(self.my_ndi_send);
-            self.my_ndi_send = nil;
-        }
+         [self stopCapturing];
     }
 }
 
 - (IBAction)goBack:(id)sender {
+    if (self.isRecording) {
+        [self stopCapturing];
+    }
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -252,14 +269,32 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSLog(@"didOutputSampleBuffer");
         if (output == self.avCaptureVideoDataOutput) {
             NSLog(@"Video packet");
+            CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+            
             NDIlib_video_frame_v2_t video_frame_data;
-            video_frame_data.xres = xres;
-            video_frame_data.yres = yres;
+            video_frame_data.xres = VIDEO_CAPTURE_WIDTH;
+            video_frame_data.yres = VIDEO_CAPTURE_HEIGHT;
             video_frame_data.FourCC = NDIlib_FourCC_type_BGRA;
-            video_frame_data.p_data = p_bgra;
-            NDIlib_send_send_video(self.my_ndi_send, &video_frame_data);
+            video_frame_data.line_stride_in_bytes = VIDEO_CAPTURE_WIDTH * VIDEO_CAPTURE_PIXEL_SIZE;
+            video_frame_data.p_data = CVPixelBufferGetBaseAddress(pixelBuffer);
+            NDIlib_send_send_video_v2(self.my_ndi_send, &video_frame_data);
         } else if (output == self.avCaptureAudioDataOutput) {
             NSLog(@"Audio packet");
+//            CMTime audioSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+//            
+//            CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+//            size_t lengthAtOffset;
+//            size_t totalLength;
+//            char *data;
+//            CMBlockBufferGetDataPointer(blockBuffer, 0, &lengthAtOffset, &totalLength, &data);
+//
+//            
+//            NDIlib_audio_frame_v2_t audio_frame_data;
+//            //audio_frame_data.timestamp =
+//            audio_frame_data.sample_rate = [AVAudioSession sharedInstance].sampleRate;
+//            audio_frame_data.no_channels =(int) [AVAudioSession sharedInstance].outputNumberOfChannels;
+//            audio_frame_data.p_data =data;
+
         }
     }
 }
