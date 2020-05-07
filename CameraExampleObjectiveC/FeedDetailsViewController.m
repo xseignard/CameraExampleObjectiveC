@@ -111,6 +111,7 @@
     while( self.shouldRecv == YES ) {
         NDIlib_video_frame_v2_t video_recv;
         NDIlib_audio_frame_v2_t audio_recv;
+        sleep(10);
         NDIlib_frame_type_e aType = NDIlib_recv_capture_v2(self.my_ndi_recv, &video_recv, &audio_recv, nil, 1500);
         //NSLog(@"Received type=%d",aType);
         switch(aType) {

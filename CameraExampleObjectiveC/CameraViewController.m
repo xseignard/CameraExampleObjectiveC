@@ -14,7 +14,8 @@
 
 #define VIDEO_CAPTURE_WIDTH 1280
 #define VIDEO_CAPTURE_HEIGHT 720
-#define VIDEO_CAPTURE_PIXEL_SIZE 4 // 4 bytes for kCVPixelFormatType_32BGRA
+//#define VIDEO_CAPTURE_PIXEL_SIZE 4 // 4 bytes for kCVPixelFormatType_32BGRA
+#define VIDEO_CAPTURE_PIXEL_SIZE 1 // 1 byte for kCVPixelFormatType_422YpCbCr8
 
 static void*  SessionRunningContext = &SessionRunningContext;
 static void*  SystemPressureContext = &SystemPressureContext;
@@ -173,7 +174,8 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
    self.avCaptureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
    [self.avCaptureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
    NSMutableDictionary * videoSettings = [[NSMutableDictionary alloc] init];
-   [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+   //[videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+   [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
    [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_WIDTH] forKey:(id)kCVPixelBufferWidthKey];
    [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_HEIGHT] forKey:(id)kCVPixelBufferHeightKey];
    self.avCaptureVideoDataOutput.videoSettings = videoSettings;
@@ -282,7 +284,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             NDIlib_video_frame_v2_t video_frame_data;
             video_frame_data.xres = VIDEO_CAPTURE_WIDTH;
             video_frame_data.yres = VIDEO_CAPTURE_HEIGHT;
-            video_frame_data.FourCC = NDIlib_FourCC_type_BGRA;
+            //video_frame_data.FourCC = NDIlib_FourCC_type_BGRA; // kCVPixelFormatType_32BGRA
+            video_frame_data.FourCC = NDIlib_FourCC_type_UYVY; // kCVPixelFormatType_422YpCbCr8
             video_frame_data.line_stride_in_bytes = VIDEO_CAPTURE_WIDTH * VIDEO_CAPTURE_PIXEL_SIZE;
             video_frame_data.p_data = CVPixelBufferGetBaseAddress(pixelBuffer);
             NDIlib_send_send_video_v2(self.my_ndi_send, &video_frame_data);
