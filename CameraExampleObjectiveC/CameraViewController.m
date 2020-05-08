@@ -15,7 +15,7 @@
 #define VIDEO_CAPTURE_WIDTH 1280
 #define VIDEO_CAPTURE_HEIGHT 720
 //#define VIDEO_CAPTURE_PIXEL_SIZE 4 // 4 bytes for kCVPixelFormatType_32BGRA
-#define VIDEO_CAPTURE_PIXEL_SIZE 1 // 1 byte for kCVPixelFormatType_422YpCbCr8
+#define VIDEO_CAPTURE_PIXEL_SIZE 1 // 1 byte for kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
 
 static void*  SessionRunningContext = &SessionRunningContext;
 static void*  SystemPressureContext = &SystemPressureContext;
@@ -172,10 +172,16 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
    
    /* Bharat: Add packet receiver*/
    self.avCaptureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+    NSArray * formats = [self.avCaptureVideoDataOutput availableVideoCVPixelFormatTypes];
+    NSLog(@"availableVideoCVPixelFormatTypes: %@",formats);
+//    for (int i=0;  i< [formats count];  i++) {
+//        NSNumber * aFormat = [formats objectAtIndex:i];
+//        NSString *hex = [NSString stringWithFormat:@"%2lX", (unsigned long)[aFormat integerValue]];
+//    }
    [self.avCaptureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
    NSMutableDictionary * videoSettings = [[NSMutableDictionary alloc] init];
    //[videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-   [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+   [videoSettings setObject:[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
    [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_WIDTH] forKey:(id)kCVPixelBufferWidthKey];
    [videoSettings setObject:[NSNumber numberWithInt:VIDEO_CAPTURE_HEIGHT] forKey:(id)kCVPixelBufferHeightKey];
    self.avCaptureVideoDataOutput.videoSettings = videoSettings;
@@ -276,19 +282,20 @@ typedef NS_ENUM(NSInteger, AVCamSetupResult) {
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection {
     if (self.isRecording) {
-        NSLog(@"didOutputSampleBuffer");
+        //NSLog(@"didOutputSampleBuffer");
         if (output == self.avCaptureVideoDataOutput) {
-            NSLog(@"Video packet");
+            //NSLog(@"Video packet");
             CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
             
-            NDIlib_video_frame_v2_t video_frame_data;
-            video_frame_data.xres = VIDEO_CAPTURE_WIDTH;
-            video_frame_data.yres = VIDEO_CAPTURE_HEIGHT;
-            //video_frame_data.FourCC = NDIlib_FourCC_type_BGRA; // kCVPixelFormatType_32BGRA
-            video_frame_data.FourCC = NDIlib_FourCC_type_UYVY; // kCVPixelFormatType_422YpCbCr8
-            video_frame_data.line_stride_in_bytes = VIDEO_CAPTURE_WIDTH * VIDEO_CAPTURE_PIXEL_SIZE;
-            video_frame_data.p_data = CVPixelBufferGetBaseAddress(pixelBuffer);
-            NDIlib_send_send_video_v2(self.my_ndi_send, &video_frame_data);
+            NDIlib_video_frame_v2_t video_frame;
+            video_frame.xres = VIDEO_CAPTURE_WIDTH;
+            video_frame.yres = VIDEO_CAPTURE_HEIGHT;
+            //video_frame.FourCC = NDIlib_FourCC_type_BGRA; // kCVPixelFormatType_32BGRA
+            video_frame.FourCC = NDIlib_FourCC_type_UYVY; // kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+//            video_frame.timecode = NDIlib_send_timecode_synthesize;
+            video_frame.line_stride_in_bytes = VIDEO_CAPTURE_WIDTH * VIDEO_CAPTURE_PIXEL_SIZE;
+            video_frame.p_data = CVPixelBufferGetBaseAddress(pixelBuffer);
+            NDIlib_send_send_video_v2(self.my_ndi_send, &video_frame);
         } else if (output == self.avCaptureAudioDataOutput) {
             NSLog(@"Audio packet");
 //            CMTime audioSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);

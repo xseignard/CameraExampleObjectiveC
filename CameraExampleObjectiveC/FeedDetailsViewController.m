@@ -166,7 +166,7 @@
         case NDIlib_FourCC_type_UYVA:
         case NDIlib_FourCC_type_UYVY:
         default:
-            pixelFormat = kCVPixelFormatType_422YpCbCr8;
+            pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
             break;
     }
     if (!CGSizeEqualToSize(_currentSize, frameSize))
