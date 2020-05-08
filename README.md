@@ -13,7 +13,7 @@ This will create a folder by name "NDI SDK for Apple" under /Users/john
 
 ## Step-4: Copy libndi_ios.a
 From the 4.5 NDI SDK folder above, copy libndi_ios.a to ios/NdiSDK_4_5/lib/iOS/ folder
-<img src="demoimages/libndi_ios_path.png" height="400"/>
+<img src="demoimages/libndi_ios_path.png" height="250"/>
 This is 622 MB, thats why I did not push to Github
 
 ## Step-4: Running sample app
